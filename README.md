@@ -1,2 +1,2 @@
-# jarih.github.io
+# typescript-weather-finland
 Site for demo purposes

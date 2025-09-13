@@ -12,9 +12,37 @@
 		<meta http-equiv="cache-control" content="no-cache, must-revalidate, post-check=0, pre-check=0">
 		<meta http-equiv="pragma" content="no-cache">
 		<meta charset="UTF-8">
+
+		<link rel="stylesheet" href="style.css">
+		<script type="text/javascript" src="script.js"></script>
 	</head>
-	<body style='margin: 50px;'>
-		<p>This is the first upload</p>
+	<body>
+		<h3>Weather Data Demo for Finland</h3>
+		<p>Location: Kajaani</p>		
+		<div id="content">
+			<select id="month_select">
+				<option value="01">January</option>
+				<option value="02">February</option>
+				<option value="03">March</option>
+				<option value="04">April</option>
+				<option value="05">May</option>
+				<option value="06">June</option>
+				<option value="07">July</option>
+				<option value="08">August</option>
+				<option value="09">September</option>
+				<option value="10">October</option>
+				<option value="11">November</option>
+				<option value="12">December</option>
+			</select>
+			<select value="" id="year_select"></select>
+			<button id="load_button" onclick="loadData()">Load</button>
+			<br><br>
+			<div id="weather_data"></div>
+		</div>
+
+		<p>Parameters: Daily average temperature, daily minimum temperature, daily maximum temperature</p>
+		<p>Data source: <a href="https://www.ilmatieteenlaitos.fi/avoin-data">FMI Open Data</a></p>
+		<div id="timestamp"></div>
 	</body>
 </html>
 

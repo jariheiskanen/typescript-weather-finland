@@ -1,0 +1,11 @@
+body
+{
+    margin: 50px;
+}
+
+#timestamp
+{
+    font-size: 0.8em;
+    color: gray;
+    margin-bottom: 20px;
+}

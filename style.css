@@ -9,3 +9,8 @@ body
     color: gray;
     margin-bottom: 20px;
 }
+
+canvas
+{
+    border: 1px solid #cccccc
+}

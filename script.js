@@ -1,15 +1,29 @@
+//TODO
+//- loading indicator when fetching data
+//- animate chart drawing
+//- visual improvements
+//- hover for chart points to show values
+//- find closest location with data if no data for requested location
+//- find list of measurement stations from FMI and show those as suggestions
+//- show which measurement station is being used
+//data available since
+//tampere 02/2000
+//kajaani 05/1975
+//compare historical data between two locations
 //page load actions
 window.addEventListener('load', function () {
     updateTimestamp();
     populateYears(); //populate year select options
     selectActiveMonth(); //set current month as selected
     loadData();
+    autoFillLocation();
 });
 //page load timestamp
 function updateTimestamp() {
     var now = new Date().toLocaleString('fi-FI');
     document.getElementById("timestamp").innerHTML = now;
 }
+//load data from fmi api
 function loadData() {
     //fetch amount of days in month
     const numDays = (y, m) => new Date(y, m, 0).getDate();
@@ -28,6 +42,7 @@ function loadData() {
         console.error('Error fetching data:', error);
     });
 }
+//parse fetched data
 function parseData(data) {
     var split_data = data.split("<wfs:member>");
     //track if date changed
@@ -58,12 +73,7 @@ function parseData(data) {
         else { }
     }
     if (obj_array.length != 0) {
-        //display data in table
-        var html = "<table><tr><th>Date</th><th>Avg (°C)</th><th>Min (°C)</th><th>Max (°C)</th></tr>";
-        for (var j = 0; j < obj_array.length; j++) {
-            html += "<tr><td>" + obj_array[j].date.split("T")[0] + "</td><td>" + obj_array[j].tday + "</td><td>" + obj_array[j].tmin + "</td><td>" + obj_array[j].tmax + "</td></tr>";
-            document.getElementById("weather_data").innerHTML = html;
-        }
+        drawTable(obj_array);
         drawCanvas(obj_array);
     }
     else {
@@ -75,6 +85,40 @@ function parseData(data) {
         ctx.fillText("No data available for the selected time period", 30, 30);
     }
 }
+//auto fill location input with suggestions
+function autoFillLocation() {
+    const municipalities = locations.municipalities;
+    var locationInput = document.getElementById("location");
+    locationInput.addEventListener("input", function () {
+        var inputValue = locationInput.value.toLowerCase();
+        var suggestions = municipalities.filter(municipality => municipality.toLowerCase().startsWith(inputValue));
+        var suggestionsDiv = document.getElementById("suggestions");
+        suggestionsDiv.innerHTML = ""; // Clear previous suggestions
+        suggestions.forEach(suggestion => {
+            var suggestionElement = document.createElement("div");
+            suggestionElement.textContent = suggestion;
+            suggestionElement.addEventListener("click", function () {
+                locationInput.value = suggestion;
+                suggestionsDiv.style.display = "none";
+            });
+            suggestionsDiv.appendChild(suggestionElement);
+        });
+        suggestionsDiv.style.display = "block";
+        if (inputValue === "") {
+            suggestionsDiv.style.display = "none";
+        }
+    });
+}
+//display data in table
+function drawTable(data) {
+    //display data in table
+    var html = "<table><tr><th>Date</th><th>Avg (°C)</th><th>Min (°C)</th><th>Max (°C)</th></tr>";
+    for (var j = 0; j < data.length; j++) {
+        html += "<tr><td>" + data[j].date.split("T")[0] + "</td><td>" + data[j].tday + "</td><td>" + data[j].tmin + "</td><td>" + data[j].tmax + "</td></tr>";
+        document.getElementById("weather_data").innerHTML = html;
+    }
+}
+//display data in canvas chart
 function drawCanvas(data) {
     var canvas = document.getElementById("weather_chart");
     var ctx = canvas.getContext("2d");
@@ -115,7 +159,12 @@ function drawCanvas(data) {
         ctx.fillText((d + 1).toString(), x - 5, canvas.height - 5);
     }
     //draw temperature lines
+    drawLines(data, ctx, chart_range, left_padding, bottom_padding, height_padded, pixels_between_days);
+}
+//improve this function
+function drawLines(data, ctx, chart_range, left_padding, bottom_padding, height_padded, pixels_between_days) {
     //average
+    var canvas = document.getElementById("weather_chart");
     ctx.beginPath();
     for (var a = 0; a < data.length; a++) {
         if (data[a].tday) {
@@ -167,6 +216,7 @@ function drawCanvas(data) {
     ctx.strokeStyle = "red";
     ctx.stroke();
 }
+//calculate highest and lowest temperature in data range
 function calcChartRange(data) {
     var highest_temp_on_range = 10;
     var lowest_temp_on_range = 0;
@@ -183,16 +233,10 @@ function calcChartRange(data) {
     var obj = { highest: highest_temp_on_range, lowest: lowest_temp_on_range };
     return obj;
 }
+//populate year select options
 function populateYears() {
     var select = document.getElementById("year_select");
     var currentYear = new Date().getFullYear();
-    //check how old data is available from FMI
-    //show error if no data
-    //find closest location with data
-    //tampere 02/2000
-    //kajaani 05/1975
-    //https://www.ilmatieteenlaitos.fi/avoin-data-saahavaintojen-vrk-ja-kk-arvot
-    //https://www.ilmatieteenlaitos.fi/havaintoasemat
     for (var year = 1950; year <= currentYear; year++) {
         var option = document.createElement("option");
         option.value = year.toString();
@@ -201,6 +245,7 @@ function populateYears() {
     }
     select.value = currentYear.toString(); //set current year as selected
 }
+//set current month as selected
 function selectActiveMonth() {
     var monthSelect = document.getElementById("month_select");
     var currentMonth = new Date().getMonth() + 1;
@@ -213,6 +258,8 @@ https://www.ilmatieteenlaitos.fi/tallennetut-kyselyt
 https://github.com/fmidev/metoclient
 https://en.ilmatieteenlaitos.fi/open-data-manual
 https://en.ilmatieteenlaitos.fi/open-data-manual-wfs-examples-and-guidelines
+https://www.ilmatieteenlaitos.fi/avoin-data-saahavaintojen-vrk-ja-kk-arvot
+https://www.ilmatieteenlaitos.fi/havaintoasemat
 
 fmi::observations::weather::daily::simple
 https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=describeStoredQueries&storedquery_id=fmi::observations::weather::daily::simple
@@ -221,6 +268,10 @@ https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedq
 
 lämpötila arvot kajaaniin heinäkuun ajalta
 https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&place=kajaani&parameters=tday,tmin,tmax&starttime=2012-07-01T00:00:00Z&endtime=2012-07-31T00:00:00Z
+3 different measurement stations
+https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&place=kajaani&maxlocations=3&parameters=tday,tmin,tmax&starttime=2012-07-01T00:00:00Z&endtime=2012-07-31T00:00:00Z
+list of stations
+https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::ef::stations
 
 fmi::observations::weather::daily::timevaluepair
 */ 

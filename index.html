@@ -13,45 +13,58 @@
 		<meta http-equiv="pragma" content="no-cache">
 		<meta charset="UTF-8">
 
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 		<link rel="stylesheet" href="style.css">
 		<script type="text/javascript" src="locations.js"></script>
 		<script type="text/javascript" src="script.js"></script>
 	</head>
 	<body>
-		<h3>Historical weather data - Finland</h3>
-		<div id="content">
-			<p>Location: </p>
-			<div>
-				<input type="text" id="location" value="Kajaani">
-				<div id="suggestions"></div>
-			</div>
-			<br><br>
-			<select id="month_select">
-				<option value="01">January</option>
-				<option value="02">February</option>
-				<option value="03">March</option>
-				<option value="04">April</option>
-				<option value="05">May</option>
-				<option value="06">June</option>
-				<option value="07">July</option>
-				<option value="08">August</option>
-				<option value="09">September</option>
-				<option value="10">October</option>
-				<option value="11">November</option>
-				<option value="12">December</option>
-			</select>
-			<select value="" id="year_select"></select>
-			<br><br>
-			<button id="load_button" onclick="loadData()"><span>Load data</span></button>
-			<br><br>
-			<canvas id="weather_chart" width="600" height="400"></canvas>
-			<br>
-			<p>Parameters: Daily average temperature, daily minimum temperature, daily maximum temperature</p>
-			<p>Raw data:</p>
-			<div id="weather_data"></div>
+		<div id="container">
+			<header>
+				<h2>Historical weather data - Finland</h2>
+			</header>
+			<main id="content">
+				<div id="input_view">
+					<div class="form_group">
+						<input type="text" class="form_input" id="location" placeholder="Location" required="" /><button id="load_button" onclick="loadData()"><span>Load data</span></button>
+						<div id="suggestions"></div>
+					</div>
+					<br>
+					<div id="select_container">
+						<select id="month_select">
+							<option value="01">January</option>
+							<option value="02">February</option>
+							<option value="03">March</option>
+							<option value="04">April</option>
+							<option value="05">May</option>
+							<option value="06">June</option>
+							<option value="07">July</option>
+							<option value="08">August</option>
+							<option value="09">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
+						</select>
+						<select value="" id="year_select"></select>
+					</div>
+				</div>
+				<div id="result_view">
+					<canvas id="weather_chart" width="820" height="400"></canvas>
+					<br>
+					<p>Parameters: Daily average temperature, daily minimum temperature, daily maximum temperature</p>
+					<p>Raw data:</p>
+					<div id="weather_data"></div>
+					<p>Data source: <a href="https://www.ilmatieteenlaitos.fi/avoin-data">FMI Open Data</a></p>
+				</div>
+			</main>
+			<footer>
+				<div id="timestamp"></div>
+				<p id="created_by">Created by <a href="https://github.com/jariheiskanen/typescript-weather-finland">Jari Heiskanen</a></p>
+			</footer>
 		</div>
-		<p>Data source: <a href="https://www.ilmatieteenlaitos.fi/avoin-data">FMI Open Data</a></p>
-		<div id="timestamp"></div>
 	</body>
 </html>
 

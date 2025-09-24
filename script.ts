@@ -13,7 +13,11 @@
 //kajaani 05/1975
 
 //compare historical data between two locations
-
+var weather_data = [];
+const top_padding = 20;
+const bottom_padding = 20;
+const left_padding = 40;
+const right_padding = 20;
 //page load actions
 window.addEventListener('load', function() {
     updateTimestamp();
@@ -31,37 +35,41 @@ function updateTimestamp(): void {
 
 //load data from fmi api
 function loadData(): void {
-    //fetch amount of days in month
-    const numDays = (y, m) => new Date(y, m, 0).getDate();
+    if((document.getElementById("location") as HTMLInputElement).value == "")
+    {
+        //hide canvas etc on load
+    }
+    else
+    {
+        //fetch amount of days in month
+        const numDays = (y, m) => new Date(y, m, 0).getDate();
 
-    var month = (document.getElementById("month_select") as HTMLSelectElement).value;
-    var year = (document.getElementById("year_select") as HTMLSelectElement).value;
-    var start_date = year + "-" + month + "-01T00:00:00Z";
-    var end_date = year + "-" + month + "-" + numDays(year, parseInt(month)) + "T00:00:00Z";
+        var month = (document.getElementById("month_select") as HTMLSelectElement).value;
+        var year = (document.getElementById("year_select") as HTMLSelectElement).value;
+        var start_date = year + "-" + month + "-01T00:00:00Z";
+        var end_date = year + "-" + month + "-" + numDays(year, parseInt(month)) + "T00:00:00Z";
 
-    var location = (document.getElementById("location") as HTMLInputElement).value;
+        var location = (document.getElementById("location") as HTMLInputElement).value;
 
-    var data_url: string = "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&place="+location+"&parameters=tday,tmin,tmax&starttime="+start_date+"&endtime="+end_date;
+        var data_url: string = "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&place="+location+"&parameters=tday,tmin,tmax&starttime="+start_date+"&endtime="+end_date;
 
-    fetch(data_url)
-    .then(response => response.text())
-    .then(data => {
-        parseData(data);
-    })
-    .catch(error => {
-        console.error('Error fetching data:', error);
-    });
+        fetch(data_url)
+        .then(response => response.text())
+        .then(data => {
+            parseData(data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+    
 }
 
 //parse fetched data
 function parseData(data: string): void 
 {
     var split_data: string[] = data.split("<wfs:member>");
-
-    //track if date changed
-    var loopTime: string = "";
-   
-    var obj_array = [];
+    weather_data = []; //clear previous data
     var weather_obj: { date: string, tday?: string, tmin?: string, tmax?: string } = {
         date: ""
     };
@@ -85,14 +93,17 @@ function parseData(data: string): void
             weather_obj.tmax = value;
             //push object into other array when done with last value of the day
             var obj_clone = structuredClone(weather_obj);
-            obj_array.push(obj_clone);
+            weather_data.push(obj_clone);
         }
         else{}
     }
-    if(obj_array.length != 0)
+    if(weather_data.length != 0)
     {
-        drawTable(obj_array);
-        drawCanvas(obj_array);
+        drawTable();
+        drawCanvas();
+
+        document.getElementById("result_view").style.display = "block";
+        //document.getElementById("input_view").style.display = "none";
     }
     else
     {
@@ -137,26 +148,26 @@ function autoFillLocation(): void
 }
 
 //display data in table
-function drawTable(data: { date: string; tday?: string; tmin?: string; tmax?: string; }[]): void 
+function drawTable(): void 
 {
     //display data in table
     var html: string = "<table><tr><th>Date</th><th>Avg (°C)</th><th>Min (°C)</th><th>Max (°C)</th></tr>";
     
-    for(var j=0; j<data.length; j++) {
-        html += "<tr><td>" + data[j].date.split("T")[0] + "</td><td>" + data[j].tday + "</td><td>" + data[j].tmin + "</td><td>" + data[j].tmax + "</td></tr>";
+    for(var j=0; j<weather_data.length; j++) {
+        html += "<tr><td>" + weather_data[j].date.split("T")[0] + "</td><td>" + weather_data[j].tday + "</td><td>" + weather_data[j].tmin + "</td><td>" + weather_data[j].tmax + "</td></tr>";
         document.getElementById("weather_data").innerHTML = html;
     }
 }
 
 //display data in canvas chart
-function drawCanvas(data: { date: string; tday?: string; tmin?: string; tmax?: string; }[]): void 
+function drawCanvas(): void 
 {
     var canvas = document.getElementById("weather_chart") as HTMLCanvasElement;
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = "10px Arial";
 
-    var chart_range = calcChartRange(data);
+    var chart_range = calcChartRange();
     //get values between highest and lowest in steps of 10
     var chart_numbers = [];
     for(var j=chart_range.lowest; j<=chart_range.highest; j++)
@@ -165,11 +176,8 @@ function drawCanvas(data: { date: string; tday?: string; tmin?: string; tmax?: s
         j = j+9;        
     }
 
-    const top_padding = 20;
-    const bottom_padding = 20;
-    const left_padding = 40;
-    const right_padding = 20;
     const height_padded = canvas.height - top_padding - bottom_padding;
+
     //draw horizontal lines for each step
     for(var k=0; k<chart_numbers.length; k++)
     {
@@ -185,8 +193,8 @@ function drawCanvas(data: { date: string; tday?: string; tmin?: string; tmax?: s
     }
 
     //draw vertical lines for days
-    var pixels_between_days = (canvas.width - left_padding - right_padding) / (data.length - 1);
-    for(var d=0; d<data.length; d++)
+    var pixels_between_days = (canvas.width - left_padding - right_padding) / (weather_data.length - 1);
+    for(var d=0; d<weather_data.length; d++)
     {
         var x = left_padding + pixels_between_days*d;
         ctx.beginPath();
@@ -198,93 +206,77 @@ function drawCanvas(data: { date: string; tday?: string; tmin?: string; tmax?: s
     }
 
     //draw temperature lines
-    drawLines(data, ctx, chart_range, left_padding, bottom_padding, height_padded, pixels_between_days);
+    drawLines(ctx, chart_range, height_padded, pixels_between_days);
 }
 
-//improve this function
-function drawLines(data: { date: string; tday?: string; tmin?: string; tmax?: string; }[], ctx: CanvasRenderingContext2D, chart_range: { highest: number; lowest: number; }, left_padding: number, bottom_padding: number, height_padded: number, pixels_between_days: number): void
+//draw temperature lines and points
+function drawLines(ctx: CanvasRenderingContext2D, chart_range: { highest: number; lowest: number; }, height_padded: number, pixels_between_days: number): void
 {
-    //average
+    for(var a=1; a<weather_data.length; a++)
+    {
+        drawPoints(a, ctx, chart_range, height_padded, pixels_between_days);
+    }
+     
+}
+
+//draw points with delay for animation effect
+function drawPoints(a: number, ctx: CanvasRenderingContext2D, chart_range: { highest: number; lowest: number; }, height_padded: number, pixels_between_days: number): void
+{
     var canvas = document.getElementById("weather_chart") as HTMLCanvasElement;
-    ctx.beginPath();
-    for(var a=0; a<data.length; a++)
-    {
-        if(data[a].tday)
+    window.setTimeout(() => {
+        if(weather_data[a].tday)
         {
-            var x = left_padding + pixels_between_days*a;
-            var y = canvas.height - bottom_padding - ((parseFloat(data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            if(a==0)
-            { 
-                ctx.moveTo(x, y);
-            }
-            else 
-            { 
-                ctx.lineTo(x, y); 
-            }
-            ctx.fillRect(x-2,y-2,4,4);
+            var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+            var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+
+            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "green");
         }
-    }
-    ctx.strokeStyle = "green";
-    ctx.stroke();
-    //minimum
-    ctx.beginPath();
-    for(var b=0; b<data.length; b++)
-    {
-        if(data[b].tmin)
+        if(weather_data[a].tmin)
         {
-            var x = left_padding + pixels_between_days*b;
-            var y = canvas.height - bottom_padding - ((parseFloat(data[b].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            if(b==0)
-            { 
-                ctx.moveTo(x, y);
-            }
-            else 
-            { 
-                ctx.lineTo(x, y); 
-            }
-            ctx.fillRect(x-2,y-2,4,4);
+            var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+            var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+
+            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "blue");            
         }
-    }
-    ctx.strokeStyle = "blue";
-    ctx.stroke();
-    //maximum
-    ctx.beginPath();
-    for(var c=0; c<data.length; c++)
-    {
-        if(data[c].tmax)
+        if(weather_data[a].tmax)
         {
-            var x = left_padding + pixels_between_days*c;
-            var y = canvas.height - bottom_padding - ((parseFloat(data[c].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            if(c==0)
-            { 
-                ctx.moveTo(x, y);
-            }
-            else 
-            { 
-                ctx.lineTo(x, y); 
-            }
-            ctx.fillRect(x-2,y-2,4,4);
+            var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+            var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+
+            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "red");   
         }
-    }
-    ctx.strokeStyle = "red";
+    }, 20*a);
+}
+
+//draw section of the chart
+function drawChartSection(a: number, ctx: CanvasRenderingContext2D, pixels_between_days: number, y: number, y_prev: number, color: string): void
+{
+    var x = left_padding + pixels_between_days*a;
+    var x_prev = left_padding + pixels_between_days*(a-1);
+
+    ctx.beginPath();
+    ctx.moveTo(x_prev, y_prev);
+    ctx.lineTo(x, y); 
+    ctx.strokeStyle = color;
     ctx.stroke();
+    ctx.fillRect(x-2,y-2,4,4);
 }
 
 //calculate highest and lowest temperature in data range
-function calcChartRange(data: { date: string; tday?: string; tmin?: string; tmax?: string; }[]): { highest: number; lowest: number;}
+function calcChartRange(): { highest: number; lowest: number;}
 {
     var highest_temp_on_range = 10;
     var lowest_temp_on_range = 0;
 
-    for(var j=1; j<data.length; j++) 
+    for(var j=1; j<weather_data.length; j++) 
     {
-        if(parseFloat(data[j].tmax) > highest_temp_on_range) 
+        if(parseFloat(weather_data[j].tmax) > highest_temp_on_range) 
         {
-            highest_temp_on_range = parseFloat(data[j].tmax);
+            highest_temp_on_range = parseFloat(weather_data[j].tmax);
         }
-        if(parseFloat(data[j].tmin) < lowest_temp_on_range) 
+        if(parseFloat(weather_data[j].tmin) < lowest_temp_on_range) 
         {
-            lowest_temp_on_range = parseFloat(data[j].tmin);
+            lowest_temp_on_range = parseFloat(weather_data[j].tmin);
         }
     }
 

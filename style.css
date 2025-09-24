@@ -1,30 +1,56 @@
 body
 {
-    margin: 50px;
-    font-family:Verdana, Geneva, Tahoma, sans-serif
+    margin-top: 0px;
+    font-family: "Roboto",Verdana, Geneva, Tahoma, sans-serif;
 }
 
-#timestamp
+#footer
 {
-    font-size: 0.8em;
-    color: gray;
-    margin-bottom: 20px;
+    position:absolute;
+    bottom:0;
+}
+
+#container
+{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    max-width: 900px;
+    margin: auto;
+    padding-top: 30px;
+    text-align: center;
+    background-color:#d1e0e9;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    min-height: 100vh;
+}
+
+main
+{
+    margin-top: 100px;
+    flex: 1;
+}
+
+#result_view
+{
+    display: none;
+    margin-top: 30px;
 }
 
 canvas
 {
-    border: 1px solid #cccccc
+    width: 820px;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
 }
 
 button 
 {
-  border: 2px solid #24b4fb;
-  background-color: #24b4fb;
-  border-radius: 0.9em;
-  cursor: pointer;
-  padding: 0.8em 1.2em 0.8em 1em;
-  transition: all ease-in-out 0.2s;
-  font-size: 16px;
+    background-color: #24b4fb;
+    cursor: pointer;
+    padding: 1.2em 2.4em 1.2em 2.4em;
+    transition: all ease-in-out 0.2s;
+    font-size: 16px;
+    border: 0;
 }
 
 button span 
@@ -41,38 +67,106 @@ button:hover
   background-color: #2e97ff;
 }
 
-select
+select, ::picker(select)
 {
-    font-size: 1em;
-    padding: 5px;
-    margin-right: 24px;
+    appearance: base-select;
+    border: 0;
 }
 
-input
+select
 {
-    font-size: 1em;
-    padding: 5px;
+    font-size: 16px;
+    border-radius: 0px;
+    padding: 1.2em 2.4em 1.2em 2.4em;
+    background-color: white;
+}
+
+#month_select
+{
+    width: 230px;
+    margin-right: 20px;
+}
+
+#year_select
+{
+    width: 150px;
+}
+
+option
+{
+    font-size: 14px;
+    padding: 10px;
+}
+
+.form_group
+{
+    position: relative;
+    margin-bottom: 1.5em;
+    display: inline-block;
+}
+
+.form_input
+{
+    font-family: "Roboto",Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    padding: 1.2em 2.4em 1.2em 2.4em;
+    border: 0;
+}
+
+.form_input:focus
+{
+    outline: none;
 }
 
 #suggestions
 {
-    border: 1px solid #cccccc;
-    max-height: 200px;
-    overflow-y: auto;
     display: none;
     position: absolute;
+    font-size: 14px;
+    border: 0;
+    width: 250px;
+    max-height: 200px;
+    overflow-y: auto;    
     background-color: white;
-    z-index: 100;
-    width: 200px;
+    z-index: 100;    
+    text-align: left;
 }
 
 #suggestions div
 {
-    padding: 5px;
+    padding: 10px 10px;
     cursor: pointer;
 }
 
 #suggestions div:hover
 {
     background-color: #eeeeee;
+}
+
+table
+{
+    border-collapse: collapse;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    background-color: white;
+}
+
+table, th, td
+{
+    border: 1px solid #cccccc;
+    padding: 5px;
+    text-align: center;
+}
+
+#timestamp
+{
+    font-size: 0.8em;
+    color: gray;
+}
+
+#created_by
+{
+    font-size: 14px;
+    margin-bottom: 20px;
 }

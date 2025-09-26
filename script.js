@@ -1,8 +1,10 @@
 //TODO
 //- loading indicator when fetching data
-//- animate chart drawing
-//- visual improvements
 //- hover for chart points to show values
+//- improve mobile layout
+//- add toggleable chart legend
+//- error handling for invalid location input
+//- show message if no data available for selected month/year/location
 //- find closest location with data if no data for requested location
 //- find list of measurement stations from FMI and show those as suggestions
 //- show which measurement station is being used
@@ -17,17 +19,11 @@ const left_padding = 40;
 const right_padding = 20;
 //page load actions
 window.addEventListener('load', function () {
-    updateTimestamp();
     populateYears(); //populate year select options
     selectActiveMonth(); //set current month as selected
     loadData();
     autoFillLocation();
 });
-//page load timestamp
-function updateTimestamp() {
-    var now = new Date().toLocaleString('fi-FI');
-    document.getElementById("timestamp").innerHTML = now;
-}
 //load data from fmi api
 function loadData() {
     if (document.getElementById("location").value == "") {

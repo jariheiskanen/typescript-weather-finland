@@ -1,13 +1,7 @@
 body
 {
-    margin-top: 0px;
+    margin: 0px;
     font-family: "Roboto",Verdana, Geneva, Tahoma, sans-serif;
-}
-
-#footer
-{
-    position:absolute;
-    bottom:0;
 }
 
 #container
@@ -15,25 +9,52 @@ body
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    max-width: 900px;
-    margin: auto;
-    padding-top: 30px;
     text-align: center;
     background-color:#d1e0e9;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
     min-height: 100vh;
+    background-image: url('images/nature-2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+}
+
+header
+{
+    padding: 40px 0px 40px 0px;
+    color: white;
 }
 
 main
 {
-    margin-top: 100px;
     flex: 1;
+}
+
+#input_view
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500px;
+    margin-bottom: 100px;
+}
+
+#input_view p
+{
+    font-size: 18px;
+    color: white;
+    max-width: 600px;
+    margin-bottom: 30px;
 }
 
 #result_view
 {
     display: none;
-    margin-top: 30px;
+    padding-top: 30px;
+    background-color: white;
+    box-shadow: 0px -10px 10px 1px rgba(0, 0, 0, 0.3);
 }
 
 canvas
@@ -45,7 +66,7 @@ canvas
 
 button 
 {
-    background-color: #24b4fb;
+    background-color: #2e97ff;
     cursor: pointer;
     padding: 1.2em 2.4em 1.2em 2.4em;
     transition: all ease-in-out 0.2s;
@@ -60,11 +81,12 @@ button span
   align-items: center;
   color: #fff;
   font-weight: 600;
+  height: 19px;
 }
 
 button:hover 
 {
-  background-color: #2e97ff;
+  background-color: #0180ff;
 }
 
 select, ::picker(select)
@@ -143,12 +165,15 @@ option
     background-color: #eeeeee;
 }
 
+#weather_data
+{
+    display: none;
+}
+
 table
 {
     border-collapse: collapse;
     margin: auto;
-    margin-top: 20px;
-    margin-bottom: 50px;
     background-color: white;
 }
 
@@ -159,14 +184,14 @@ table, th, td
     text-align: center;
 }
 
-#timestamp
+footer
 {
-    font-size: 0.8em;
-    color: gray;
+    width: 100%;
+    color: white;
+    background-color:#2e97ff
 }
 
 #created_by
 {
     font-size: 14px;
-    margin-bottom: 20px;
 }

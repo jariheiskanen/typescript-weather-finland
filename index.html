@@ -57,10 +57,15 @@
 					</div>
 				</div>
 				<div id="result_view">
-					<canvas id="weather_chart" width="820" height="400"></canvas>
-					<br>
-					<p>Parameters: Daily average temperature, daily minimum temperature, daily maximum temperature</p>
-					<br>
+					<div id="canvas_wrapper">
+						<div id="canvas_legend">
+							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
+							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
+							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>							
+						</div>
+						<canvas id="weather_chart" width="820" height="400"></canvas>
+						<br>
+					</div>
 					<div id="weather_data"></div>
 				</div>
 			</main>

@@ -2,7 +2,6 @@
 //- loading indicator when fetching data
 //- hover for chart points to show values
 //- improve mobile layout
-//- add toggleable chart legend
 //- error handling for invalid location input
 //- show message if no data available for selected month/year/location
 
@@ -185,6 +184,15 @@ function drawCanvas(): void
         ctx.moveTo(left_padding, y);
         ctx.lineTo(canvas.width - right_padding, y);
         ctx.strokeStyle = "#cccccc";
+        ctx.setLineDash([]);
+        ctx.stroke();
+
+        //draw half step line (5c) for better readability
+        ctx.beginPath();
+        ctx.moveTo(left_padding, y-pixels_between_steps/2);
+        ctx.lineTo(canvas.width - right_padding, y-pixels_between_steps/2);
+        ctx.strokeStyle = "#dddddd";
+        ctx.setLineDash([1, 1]);
         ctx.stroke();
     }
 
@@ -197,6 +205,7 @@ function drawCanvas(): void
         ctx.moveTo(x, top_padding);
         ctx.lineTo(x, canvas.height - bottom_padding);
         ctx.strokeStyle = "#eeeeee";
+        ctx.setLineDash([]);
         ctx.stroke();
         ctx.fillText((d+1).toString(), x-5, canvas.height - 5);
     }
@@ -220,21 +229,21 @@ function drawPoints(a: number, ctx: CanvasRenderingContext2D, chart_range: { hig
 {
     var canvas = document.getElementById("weather_chart") as HTMLCanvasElement;
     window.setTimeout(() => {
-        if(weather_data[a].tday)
+        if(weather_data[a].tday && (document.querySelectorAll('.legend_checkbox')[1] as HTMLInputElement).checked)
         {
             var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
             var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
 
             drawChartSection(a, ctx, pixels_between_days, y, y_prev, "green");
         }
-        if(weather_data[a].tmin)
+        if(weather_data[a].tmin && (document.querySelectorAll('.legend_checkbox')[2] as HTMLInputElement).checked)
         {
             var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
             var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
 
             drawChartSection(a, ctx, pixels_between_days, y, y_prev, "blue");            
         }
-        if(weather_data[a].tmax)
+        if(weather_data[a].tmax && (document.querySelectorAll('.legend_checkbox')[0] as HTMLInputElement).checked)
         {
             var y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
             var y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a-1].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
@@ -254,6 +263,7 @@ function drawChartSection(a: number, ctx: CanvasRenderingContext2D, pixels_betwe
     ctx.moveTo(x_prev, y_prev);
     ctx.lineTo(x, y); 
     ctx.strokeStyle = color;
+    ctx.setLineDash([]);
     ctx.stroke();
     ctx.fillRect(x-2,y-2,4,4);
 }
@@ -307,6 +317,10 @@ function selectActiveMonth(): void
     monthSelect.value = currentMonth.toString().padStart(2, '0'); //pad single digit months with leading zero
 }
 
+function legendChanged(): void
+{
+    drawCanvas();
+}
 
 /* info
 https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services

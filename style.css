@@ -57,6 +57,7 @@ main
 
 #result_view
 {
+    display: none;
     padding-top: 30px;
     padding-bottom: 50px;
     background-color: #f1faff;
@@ -88,6 +89,7 @@ main
     display: inline-block;
     width: 12px;
     height: 12px;
+    border-radius: 6px;
 }
 
 #legend_color_max
@@ -151,7 +153,7 @@ button:hover
 select, ::picker(select)
 {
     appearance: base-select;
-    border: 0;
+    border: 1px solid #cccccc;
 }
 
 select
@@ -222,6 +224,45 @@ option
 #suggestions div:hover
 {
     background-color: #eeeeee;
+}
+
+#station_info
+{
+    font-size: 14px;
+}
+
+#input_container
+{
+    position: relative;
+}
+
+#search_error
+{
+    position: absolute;
+    top: 160px;
+    width: 100%;
+}
+
+#canvas_container
+{
+    position: relative;
+}
+
+#station_select::picker
+{
+    border: 1px solid #cccccc;
+}
+
+#station_select_container
+{
+    position: absolute;
+    top: 20px;
+    width: 100%;
+}
+
+#station_select_container select
+{
+    border: 1px solid #cccccc;
 }
 
 #weather_data

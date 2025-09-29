@@ -53,25 +53,27 @@
 								</select>
 								<select value="" id="year_select"></select>
 							</div>
+							<p id="search_error"></p>
 						</div>
+						
 					</div>
 				</div>
 				<div id="result_view">					
 					<div id="canvas_wrapper">
 						<div id="canvas_legend">
-							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
-							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
-							<div><input class="legend_checkbox" onchange="legendChanged()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>							
+							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
+							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
+							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>							
 						</div>
-						<canvas id="weather_chart" width="820" height="400"></canvas>
+						<div id="canvas_container">
+							<div id="station_select_container"><select id="station_select" onchange="connectToAPI()"></select></div>							
+							<canvas id="weather_chart" width="820" height="450"></canvas>							
+						</div>
 						<br>
 					</div>
-					<div id="station_wrapper">
-						<p>Measurement station</p>
-						<select id="station_select" onchange="connectToAPI()"></select>
+					<div id="station_info_wrapper">
 						<div id="station_info">
-							<p id="station_distance"></p>
-							<p id="station_active"></p>
+							<p>Results are not always found even if station shows active during selected time period due to change in measurement tools or location</p>
 						</div>
 					</div>
 					<div id="weather_data"></div>

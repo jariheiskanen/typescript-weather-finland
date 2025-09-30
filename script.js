@@ -84,13 +84,14 @@ function connectToAPI() {
     let start_date = year + "-" + month + "-01T00:00:00Z";
     let end_date = year + "-" + month + "-" + numDays(year, parseInt(month)) + "T00:00:00Z";
     let fmisid = document.getElementById("station_select").value;
-    let data_url = "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&fmisid=" + fmisid + "&parameters=tday,tmin,tmax&starttime=" + start_date + "&endtime=" + end_date;
+    let data_url = "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::daily::simple&fmisid=" + fmisid + "&parameters=tday,tmin,tmax,snow,rrday&starttime=" + start_date + "&endtime=" + end_date;
     fetch(data_url)
         .then(response => response.text())
         .then(data => {
         parseData(data);
     })
         .catch(error => {
+        alert("API error");
         console.error('Error fetching data:', error);
     });
 }
@@ -116,6 +117,12 @@ function parseData(data) {
         }
         else if (parameter == "tmax") {
             weather_obj.tmax = value;
+        }
+        else if (parameter == "snow") {
+            weather_obj.snow = value;
+        }
+        else if (parameter == "rrday") {
+            weather_obj.rrday = value;
             //push object into other array when done with last value of the day
             let obj_clone = structuredClone(weather_obj);
             weather_data.push(obj_clone);
@@ -168,6 +175,7 @@ function fetchStations() {
         parseStations(data);
     })
         .catch(error => {
+        alert("API error");
         console.error('Error fetching data:', error);
     });
 }

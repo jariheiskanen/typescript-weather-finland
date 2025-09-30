@@ -4,6 +4,8 @@
 
 //features:
 //compare historical data between two locations
+//show average temp for a month
+//add rain/snow
 
 interface Station 
 {

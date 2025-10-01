@@ -61,12 +61,19 @@
 				<div id="result_view">					
 					<div id="canvas_wrapper">
 						<div id="canvas_legend">
-							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
-							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
-							<div><input class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>							
+							<div><input id="check_max" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
+							<div><input id="check_avg" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
+							<div><input id="check_min" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>
 						</div>
+						
 						<div id="canvas_container">
 							<div id="station_select_container"><select id="station_select" onchange="connectToAPI()"></select></div>							
+							<div id="canvas_radio">
+								<input type="radio" id="toggle_rain" name="weather_extra" value="Rainfall" onchange="drawCanvas()" checked>
+								<label for="toggle_rain">Rainfall</label><br>
+								<input type="radio" id="toggle_snow" name="weather_extra" value="Level of snow" onchange="drawCanvas()">
+								<label for="toggle_snow">Level of snow</label><br>
+							</div>
 							<canvas id="weather_chart" width="820" height="450"></canvas>							
 						</div>
 						<br>

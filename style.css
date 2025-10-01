@@ -73,6 +73,14 @@ main
     margin: auto;
 }
 
+#canvas_radio
+{
+    text-align: left;
+    position: absolute;
+    top: 35px;
+    right: 45px;
+}
+
 #canvas_legend
 {
     width: 100%;
@@ -81,7 +89,7 @@ main
     padding-left: 20px;
     flex-wrap: wrap;
     font-size: 14px;
-    gap: 5px;
+    gap: 25px;
 }
 
 .legend_color
@@ -109,7 +117,6 @@ main
 
 #canvas_legend > div
 {
-    width: 100%;
     text-align: left;
 }
 

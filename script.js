@@ -1,13 +1,13 @@
 //TODO
-//- hover for chart points to show values
-//- create mobile layout
+//hover for chart points to show values
+//create mobile layout
 var station_distances = [];
 var stations = [];
 var weather_data = [];
 const top_padding = 100;
 const bottom_padding = 20;
 const left_padding = 40;
-const right_padding = 20;
+const right_padding = 40;
 //page load actions
 window.addEventListener('load', function () {
     populateYears(); //populate year select options
@@ -132,7 +132,6 @@ function parseData(data) {
     if (weather_data.length != 0) {
         drawTable();
         drawCanvas();
-        getStationInfo();
     }
     else {
         document.getElementById("weather_data").innerHTML = "No data available for the selected time period.";
@@ -263,6 +262,16 @@ function drawCanvas() {
         chart_numbers.push(j);
         j = j + 9;
     }
+    let highest_snow = 0;
+    let highest_rain = 0;
+    for (let j = 0; j < weather_data.length; j++) {
+        if (parseInt(weather_data[j].snow) > highest_snow) {
+            highest_snow = parseInt(weather_data[j].snow);
+        }
+        if (parseInt(weather_data[j].rrday) > highest_rain) {
+            highest_rain = parseInt(weather_data[j].rrday);
+        }
+    }
     const height_padded = canvas.height - top_padding - bottom_padding;
     //draw horizontal lines for each step
     for (let k = 0; k < chart_numbers.length; k++) {
@@ -273,6 +282,7 @@ function drawCanvas() {
         ctx.moveTo(left_padding, y);
         ctx.lineTo(canvas.width - right_padding, y);
         ctx.strokeStyle = "#cccccc";
+        ctx.lineWidth = 1;
         ctx.setLineDash([]);
         ctx.stroke();
         if (k < chart_numbers.length - 1) {
@@ -281,8 +291,33 @@ function drawCanvas() {
             ctx.moveTo(left_padding, y - pixels_between_steps / 2);
             ctx.lineTo(canvas.width - right_padding, y - pixels_between_steps / 2);
             ctx.strokeStyle = "#dddddd";
+            ctx.lineWidth = 1;
             ctx.setLineDash([1, 1]);
             ctx.stroke();
+        }
+        //record in Finland for snow is below 200cm and for rain below 200mm
+        //so both can use same range, 100 by default, 200 if value in range goes over 100
+        if (document.getElementById('toggle_rain').checked) {
+            //rainfall markers
+            if (highest_rain <= 100) {
+                let rain_steps = 100 / (chart_numbers.length - 1);
+                ctx.fillText(Math.round(rain_steps * k) + " mm", canvas.width - right_padding + 10, y);
+            }
+            else {
+                let rain_steps = 200 / (chart_numbers.length - 1);
+                ctx.fillText(Math.round(rain_steps * k) + " mm", canvas.width - right_padding + 10, y);
+            }
+        }
+        if (document.getElementById('toggle_snow').checked) {
+            //snow depth markers
+            if (highest_snow <= 100) {
+                let snow_steps = 100 / (chart_numbers.length - 1);
+                ctx.fillText(Math.round(snow_steps * k) + " cm", canvas.width - right_padding + 10, y);
+            }
+            else {
+                let snow_steps = 200 / (chart_numbers.length - 1);
+                ctx.fillText(Math.round(snow_steps * k) + " cm", canvas.width - right_padding + 10, y);
+            }
         }
     }
     //draw vertical lines for days
@@ -293,13 +328,15 @@ function drawCanvas() {
         ctx.moveTo(x, top_padding);
         ctx.lineTo(x, canvas.height - bottom_padding);
         ctx.strokeStyle = "#eeeeee";
+        ctx.lineWidth = 1;
         ctx.setLineDash([]);
         ctx.stroke();
         ctx.fillText((d + 1).toString(), x - 5, canvas.height - 5);
     }
     document.getElementById("result_view").style.display = "block";
     //draw temperature lines
-    drawLines(ctx, chart_range, height_padded, pixels_between_days);
+    drawLines(ctx, chart_range, height_padded, pixels_between_days, highest_snow, highest_rain);
+    getStationInfo();
     //scroll to chart
     window.scrollTo({
         top: 420,
@@ -308,29 +345,69 @@ function drawCanvas() {
     });
 }
 //draw temperature lines and points
-function drawLines(ctx, chart_range, height_padded, pixels_between_days) {
-    for (let a = 1; a < weather_data.length; a++) {
-        drawPoints(a, ctx, chart_range, height_padded, pixels_between_days);
+function drawLines(ctx, chart_range, height_padded, pixels_between_days, highest_snow, highest_rain) {
+    for (let a = 0; a < weather_data.length; a++) {
+        drawPoints(a, ctx, chart_range, height_padded, pixels_between_days, highest_snow, highest_rain);
     }
 }
 //draw points with delay for animation effect
-function drawPoints(a, ctx, chart_range, height_padded, pixels_between_days) {
+function drawPoints(a, ctx, chart_range, height_padded, pixels_between_days, highest_snow, highest_rain) {
     let canvas = document.getElementById("weather_chart");
     window.setTimeout(() => {
-        if (weather_data[a].tday && document.querySelectorAll('.legend_checkbox')[1].checked) {
-            let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "green");
+        //draw snow/rain first so temperature gets drawn over it
+        if (parseInt(weather_data[a].snow) > 0 && document.getElementById('toggle_snow').checked) {
+            let max_snow = 100;
+            if (highest_snow > 100) {
+                max_snow = 200;
+            }
+            let x = left_padding + pixels_between_days * (a);
+            let y_start = canvas.height - bottom_padding;
+            let snow_per_pixel = height_padded / max_snow;
+            let y_end = y_start - snow_per_pixel * parseInt(weather_data[a].snow);
+            ctx.beginPath();
+            ctx.moveTo(x, y_start);
+            ctx.lineTo(x, y_end);
+            ctx.strokeStyle = "#b0def8";
+            ctx.lineWidth = 10;
+            ctx.setLineDash([]);
+            ctx.stroke();
         }
-        if (weather_data[a].tmin && document.querySelectorAll('.legend_checkbox')[2].checked) {
-            let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "blue");
+        if (parseInt(weather_data[a].rrday) > 0 && document.getElementById('toggle_rain').checked) {
+            let max_rain = 100;
+            if (highest_rain > 100) {
+                max_rain = 200;
+            }
+            let x = left_padding + pixels_between_days * (a);
+            let y_start = canvas.height - bottom_padding;
+            let rain_per_pixel = height_padded / max_rain;
+            let y_end = y_start - rain_per_pixel * parseInt(weather_data[a].rrday);
+            ctx.beginPath();
+            ctx.moveTo(x, y_start);
+            ctx.lineTo(x, y_end);
+            ctx.strokeStyle = "#2eaef8ff";
+            ctx.lineWidth = 10;
+            ctx.setLineDash([]);
+            ctx.stroke();
         }
-        if (weather_data[a].tmax && document.querySelectorAll('.legend_checkbox')[0].checked) {
-            let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
-            drawChartSection(a, ctx, pixels_between_days, y, y_prev, "red");
+        if (a > 0) {
+            //tday
+            if (document.querySelectorAll('.legend_checkbox')[1].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartSection(a, ctx, pixels_between_days, y, y_prev, "green");
+            }
+            //tmin
+            if (document.querySelectorAll('.legend_checkbox')[2].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartSection(a, ctx, pixels_between_days, y, y_prev, "blue");
+            }
+            //tmax
+            if (document.querySelectorAll('.legend_checkbox')[0].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                let y_prev = canvas.height - bottom_padding - ((parseFloat(weather_data[a - 1].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartSection(a, ctx, pixels_between_days, y, y_prev, "red");
+            }
         }
     }, 20 * a);
 }
@@ -342,6 +419,7 @@ function drawChartSection(a, ctx, pixels_between_days, y, y_prev, color) {
     ctx.moveTo(x_prev, y_prev);
     ctx.lineTo(x, y);
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
     ctx.setLineDash([]);
     ctx.stroke();
     ctx.fillRect(x - 2, y - 2, 4, 4);

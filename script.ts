@@ -629,7 +629,6 @@ function drawChartHover(x: number, y: number, a: number, color: string): void
 
     if(color == "red")
     {
-        console.log(weather_data[a].tmax);
         hover_div.title = weather_data[a].tmax + " °C";
     }
     else if(color == "blue")
@@ -640,8 +639,6 @@ function drawChartHover(x: number, y: number, a: number, color: string): void
     {
         hover_div.title = weather_data[a].tday + " °C";
     }
-    
-
     document.getElementById("hover_wrapper").appendChild(hover_div);
 }
 

@@ -468,7 +468,6 @@ function drawChartHover(x, y, a, color) {
     hover_div.style.top = (y - 4 - top_padding).toString() + "px";
     hover_div.style.backgroundColor = color;
     if (color == "red") {
-        console.log(weather_data[a].tmax);
         hover_div.title = weather_data[a].tmax + " °C";
     }
     else if (color == "blue") {

@@ -1,5 +1,4 @@
 //TODO
-//hover for chart points to show values
 //create mobile layout
 var station_distances = [];
 var stations = [];
@@ -334,6 +333,7 @@ function drawCanvas() {
         ctx.fillText((d + 1).toString(), x - 5, canvas.height - 5);
     }
     document.getElementById("result_view").style.display = "block";
+    document.getElementById("hover_wrapper").innerHTML = "";
     //draw temperature lines
     drawLines(ctx, chart_range, height_padded, pixels_between_days, highest_snow, highest_rain);
     getStationInfo();
@@ -371,6 +371,7 @@ function drawPoints(a, ctx, chart_range, height_padded, pixels_between_days, hig
             ctx.lineWidth = 10;
             ctx.setLineDash([]);
             ctx.stroke();
+            addBarHover(x, y_start, y_end, a, "snow");
         }
         if (parseInt(weather_data[a].rrday) > 0 && document.getElementById('toggle_rain').checked) {
             let max_rain = 100;
@@ -388,6 +389,7 @@ function drawPoints(a, ctx, chart_range, height_padded, pixels_between_days, hig
             ctx.lineWidth = 10;
             ctx.setLineDash([]);
             ctx.stroke();
+            addBarHover(x, y_start, y_end, a, "rain");
         }
         if (a > 0) {
             //tday
@@ -409,7 +411,40 @@ function drawPoints(a, ctx, chart_range, height_padded, pixels_between_days, hig
                 drawChartSection(a, ctx, pixels_between_days, y, y_prev, "red");
             }
         }
+        else //draw first point
+         {
+            //tday
+            if (document.querySelectorAll('.legend_checkbox')[1].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tday) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartHover(left_padding, y, a, "green");
+            }
+            //tmin
+            if (document.querySelectorAll('.legend_checkbox')[2].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmin) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartHover(left_padding, y, a, "blue");
+            }
+            //tmax
+            if (document.querySelectorAll('.legend_checkbox')[0].checked) {
+                let y = canvas.height - bottom_padding - ((parseFloat(weather_data[a].tmax) - chart_range.lowest) / (chart_range.highest - chart_range.lowest)) * height_padded;
+                drawChartHover(left_padding, y, a, "red");
+            }
+        }
     }, 20 * a);
+}
+//adds hover event for snow and rain bars by creating invisible divs over the bars
+function addBarHover(x, y_start, y_end, a, type) {
+    let hover_div = document.createElement("div");
+    hover_div.className = "hover_div bar_hover";
+    hover_div.style.left = (x - 5).toString() + "px";
+    hover_div.style.top = (y_end - top_padding).toString() + "px";
+    hover_div.style.height = ((y_start - top_padding) - (y_end - top_padding)).toString() + "px";
+    if (type == "snow") {
+        hover_div.title = parseInt(weather_data[a].snow) + " cm of snow";
+    }
+    else if (type == "rain") {
+        hover_div.title = weather_data[a].rrday + " mm of rain";
+    }
+    document.getElementById("hover_wrapper").appendChild(hover_div);
 }
 //draw section of the chart
 function drawChartSection(a, ctx, pixels_between_days, y, y_prev, color) {
@@ -422,7 +457,27 @@ function drawChartSection(a, ctx, pixels_between_days, y, y_prev, color) {
     ctx.lineWidth = 1;
     ctx.setLineDash([]);
     ctx.stroke();
-    ctx.fillRect(x - 2, y - 2, 4, 4);
+    //ctx.fillRect(x-2,y-2,4,4);
+    drawChartHover(x, y, a, color);
+}
+//draw hoverable circles for chart points
+function drawChartHover(x, y, a, color) {
+    let hover_div = document.createElement("div");
+    hover_div.className = "hover_div chart_point";
+    hover_div.style.left = (x - 4).toString() + "px";
+    hover_div.style.top = (y - 4 - top_padding).toString() + "px";
+    hover_div.style.backgroundColor = color;
+    if (color == "red") {
+        console.log(weather_data[a].tmax);
+        hover_div.title = weather_data[a].tmax + " °C";
+    }
+    else if (color == "blue") {
+        hover_div.title = weather_data[a].tmin + " °C";
+    }
+    else if (color == "green") {
+        hover_div.title = weather_data[a].tday + " °C";
+    }
+    document.getElementById("hover_wrapper").appendChild(hover_div);
 }
 //calculate highest and lowest temperature in data range
 function calcChartRange() {

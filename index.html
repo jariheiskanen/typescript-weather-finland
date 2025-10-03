@@ -61,9 +61,9 @@
 				<div id="result_view">					
 					<div id="canvas_wrapper">
 						<div id="canvas_legend">
-							<div><input id="check_max" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_max"></div> T<span>max</span> °C</div>
-							<div><input id="check_avg" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_avg"></div> T<span>avg</span> °C</div>
-							<div><input id="check_min" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/><div class="legend_color" id="legend_color_min"></div> T<span>min</span> °C</div>
+							<div class="checkbox-wrapper-21"><label class="control control--checkbox"><input id="check_max" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/>T<span>max</span> °C<div class="control__indicator color_max"></div></label></div>
+							<div class="checkbox-wrapper-21"><label class="control control--checkbox"><input id="check_avg" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/>T<span>avg</span> °C<div class="control__indicator color_avg"></div></label></div>
+							<div class="checkbox-wrapper-21"><label class="control control--checkbox"><input id="check_min" class="legend_checkbox" onchange="drawCanvas()" type="checkbox" checked/>T<span>min</span> °C<div class="control__indicator color_min"></div></label></div>
 						</div>
 						
 						<div id="canvas_container">
@@ -74,7 +74,8 @@
 								<input type="radio" id="toggle_snow" name="weather_extra" value="Level of snow" onchange="drawCanvas()">
 								<label for="toggle_snow">Level of snow</label><br>
 							</div>
-							<canvas id="weather_chart" width="820" height="450"></canvas>							
+							<canvas id="weather_chart" width="820" height="450"></canvas>
+							<div id="hover_wrapper"></div>						
 						</div>
 						<br>
 					</div>
